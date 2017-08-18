@@ -66,7 +66,6 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         surfaceView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-
                 return false;
             }
         });
