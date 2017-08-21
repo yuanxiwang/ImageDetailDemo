@@ -1,7 +1,9 @@
 package com.imagedetaildemo;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.*;
@@ -9,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -21,7 +24,6 @@ import android.widget.Toast;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.TimerTask;
 
 /**
  * Created by Administrator on 2017/8/15.
@@ -37,6 +39,8 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     private boolean isView = false;
     private Camera.Parameters myParameters;
     private Camera.AutoFocusCallback mAutoFocusCallback;
+    private final static int BEHIND = 0;
+    private final static int FRONT = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,7 +64,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         };
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
+//        surfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
         surfaceHolder.addCallback(this);
 
         surfaceView.setOnTouchListener(new View.OnTouchListener() {
@@ -72,7 +76,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
         btnTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mCamera.takePicture(myShutterCallback, myRawCallback, myjpegCalback);
+                mCamera.takePicture(myShutterCallback, null, myjpegCalback);
             }
         });
     }
@@ -88,19 +92,26 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
     PictureCallback myjpegCalback = new PictureCallback() {
         public void onPictureTaken(byte[] data, Camera camera) {
             Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length);
-            FileUtil.saveBitmap(bm);
+            Matrix matrix = new Matrix();
+            // 缩放原图
+            matrix.postScale(1f, 1f);
+            // 向左旋转45度，参数为正则向右旋转
+            matrix.postRotate(90);
+            //bmp.getWidth(), 500分别表示重绘后的位图宽高
+            Bitmap dstbmp = Bitmap.createBitmap(bm, 0, 0, 500, 500, matrix, false);
             isView = false;
-            mCamera.stopPreview();
-            mCamera.release();
-            mCamera = null;
-            isView = false;
+            String path = FileUtil.saveBitmap(dstbmp);
+            Intent mIntent = new Intent();
+            mIntent.putExtra("path", path);
+            CameraActivity.this.setResult(RESULT_OK, mIntent);
+            CameraActivity.this.finish();
         }
     };
 
-    public void initCamera() {
+    public void initCamera(int type) {
         if (mCamera == null && !isView) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                mCamera = Camera.open(0);
+                mCamera = Camera.open(type);
             } else {
                 mCamera = Camera.open();
             }
@@ -111,6 +122,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
                 int PreviewHeight = 0;
                 myParameters = mCamera.getParameters();
                 myParameters.setPictureFormat(PixelFormat.JPEG);
+                myParameters.setJpegQuality(100);
                 // 选择合适的预览尺寸
                 List<Size> sizeList = myParameters.getSupportedPreviewSizes();
 
@@ -144,7 +156,7 @@ public class CameraActivity extends AppCompatActivity implements SurfaceHolder.C
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        initCamera();
+        initCamera(BEHIND);
     }
 
     @Override

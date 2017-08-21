@@ -3,6 +3,7 @@ package com.imagedetaildemo;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int PIC_REQUEST_CODE = 0x1901;
     private Button btnChoose;
     private Button btnDetail;
     private ImageView imageView;
@@ -40,9 +42,12 @@ public class MainActivity extends AppCompatActivity {
         btnChoose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)checkPermission();
-                Intent mIntent = new Intent(MainActivity.this, CameraActivity.class);
-                startActivity(mIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    checkPermission();
+                } else {
+                    Intent mIntent = new Intent(MainActivity.this, CameraActivity.class);
+                    startActivityForResult(mIntent, PIC_REQUEST_CODE);
+                }
             }
         });
         btnDetail.setOnClickListener(new View.OnClickListener() {
@@ -57,10 +62,21 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CAMERA);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA,
+                                                                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                 Manifest.permission.READ_EXTERNAL_STORAGE},
+                                                REQUEST_CAMERA);
         } else {
-            return;
+            Intent mIntent = new Intent(MainActivity.this, CameraActivity.class);
+            startActivityForResult(mIntent, PIC_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PIC_REQUEST_CODE && resultCode == RESULT_OK && data.hasExtra("path")) {
+            imageView.setImageBitmap(BitmapFactory.decodeFile(data.getStringExtra("path")));
         }
     }
 
@@ -72,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED
                     && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
                 Intent mIntent = new Intent(MainActivity.this, CameraActivity.class);
-                startActivity(mIntent);
+                startActivityForResult(mIntent, PIC_REQUEST_CODE);
             } else {
 
             }

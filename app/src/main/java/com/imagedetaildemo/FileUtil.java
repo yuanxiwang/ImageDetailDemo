@@ -18,14 +18,14 @@ public class FileUtil {
     private static final  String TAG = "FileUtil";
     private static final File parentPath = Environment.getExternalStorageDirectory();
     private static   String storagePath = "";
-    private static final String DST_FOLDER_NAME = "DCIM" + File.separator + "Camera";
+    private static final String DST_FOLDER_NAME = "Camera";
 
     /**初始化保存路径
      * @return
      */
     private static String initPath(){
         if(storagePath.equals("")){
-            storagePath = parentPath.getAbsolutePath()+"/" + DST_FOLDER_NAME;
+            storagePath = parentPath.getAbsolutePath()+ File.separator + DST_FOLDER_NAME;
             File f = new File(storagePath);
             if(!f.exists()){
                 f.mkdir();
@@ -44,7 +44,7 @@ public class FileUtil {
         String currentTime = time + "";
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String dataTake = "IMG_" + sdf.format(time) + "_" + currentTime.substring(currentTime.length() - 6);
-        String jpegName = path + "/" + dataTake +".jpg";
+        String jpegName = path + File.separator + dataTake +".jpg";
         Log.i(TAG, "saveBitmap:jpegName = " + jpegName);
         try {
             FileOutputStream fout = new FileOutputStream(jpegName);
