@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -14,6 +15,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import jp.co.cyberagent.android.gpuimage.GPUImage;
+import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
+import jp.co.cyberagent.android.gpuimage.GPUImageSepiaFilter;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PIC_REQUEST_CODE = 0x1901;
@@ -27,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int REQUEST_CAMERA = 0x1911;
+    private java.lang.String bitmapPath = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +59,15 @@ public class MainActivity extends AppCompatActivity {
         btnDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                GPUImage gpuImage = new GPUImage(MainActivity.this);
+                gpuImage.setImage(BitmapFactory.decodeFile(bitmapPath));
+                gpuImage.setFilter(new GPUImageSepiaFilter());
+                gpuImage.saveToPictures("GPUImage", "ImageWithFilter.jpg", new GPUImage.OnPictureSavedListener() {
+                    @Override
+                    public void onPictureSaved(Uri uri) {
+                        imageView.setImageBitmap(BitmapFactory.decodeFile("ImageWithFilter.jpg"));
+                    }
+                });
             }
         });
     }
@@ -76,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PIC_REQUEST_CODE && resultCode == RESULT_OK && data.hasExtra("path")) {
+            bitmapPath = data.getStringExtra("path");
             imageView.setImageBitmap(BitmapFactory.decodeFile(data.getStringExtra("path")));
         }
     }
