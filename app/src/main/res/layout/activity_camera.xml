@@ -3,37 +3,52 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/ivResult"
-        android:visibility="gone"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@mipmap/take_photo" />
+        android:layout_above="@+id/llTakePhoto">
+
+        <SurfaceView
+            android:id="@+id/surfaceView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.imagedetaildemo.CameraSurfaceView
+            android:id="@+id/viewArea"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/ivResult"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@mipmap/take_photo"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/llTakePhoto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:padding="10dp"
         android:background="#337e7e7f"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="10dp">
+
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
         <Button
             android:id="@+id/btnTakePhoto"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@mipmap/take_photo" />
+
         <android.support.v4.widget.Space
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
     </LinearLayout>
-    <SurfaceView
-        android:id="@+id/surfaceView"
-        android:layout_width="match_parent"
-        android:layout_above="@id/llTakePhoto"
-        android:layout_height="match_parent"/>
 </RelativeLayout>
